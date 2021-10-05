@@ -108,6 +108,33 @@ pub fn (this Buffer)delete() {
 }
 
 ///
+/// SessionOptions
+///
+struct C.TF_SessionOptions{}
+fn C.TF_NewSessionOptions() &C.TF_SessionOptions
+fn C.TF_SetTarget(&C.TF_SessionOptions, &char)
+fn C.TF_SetConfig(&C.TF_SessionOptions, voidptr, u64, &C.TF_Status)
+fn C.TF_DeleteSessionOptions(&C.TF_SessionOptions)
+
+pub struct SessionOptions {
+	session_option &C.TF_SessionOptions
+}
+
+pub fn new_session_options() SessionOptions {
+	return SessionOptions {
+		C.TF_NewSessionOptions()
+	}
+}
+
+pub fn (this SessionOptions)set_target(target string) {
+	C.TF_SetTarget(this.session_option, &char(target.str))
+}
+
+pub fn (this SessionOptions)delete() {
+	C.TF_DeleteSessionOptions(this.session_option)
+}
+
+///
 /// TF_Graph
 ///
 
