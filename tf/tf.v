@@ -38,6 +38,49 @@ pub enum Code {
 	data_loss           = C.TF_DATA_LOSS // [15]
 }
 
+pub struct Status {
+	status &C.TF_Status
+}
+
+fn C.TF_NewStatus() &C.TF_Status
+fn C.TF_DeleteStatus(&C.TF_Status)
+fn C.TF_SetStatus(&C.TF_Status, int, &char)
+fn C.TF_SetStatusFromIOError(&C.TF_Status, int, &char)
+fn C.TF_GetCode(&C.TF_Status) int
+fn C.TF_Message(&C.TF_Status) &char
+
+pub fn new_status() Status {
+	return Status {C.TF_NewStatus()}
+}
+
+pub fn (this Status)delete() {
+	C.TF_DeleteStatus(this.status)
+}
+
+pub fn (this Status)set(code Code, message string) {
+	C.TF_SetStatus(this.status, int(code), &char(message.str))
+}
+
+pub fn (this Status)set_from_io_error(error_code int, context string) {
+	C.TF_SetStatusFromIOError(this.status, error_code, &char(context.str))
+}
+
+pub fn (this Status)code() Code {
+	rc := C.TF_GetCode(this.status)
+
+	return Code(rc)
+}
+
+// message: return an empty string if code is <ok>,
+//          otherwise, it returns the message 
+//          associated with that error.
+pub fn (this Status)message() string {
+	unsafe {
+		msg := &char(C.TF_Message(this.status))
+		return msg.vstring_literal()
+	}
+}
+
 ///
 /// TF_Graph
 ///
