@@ -82,6 +82,32 @@ pub fn (this Status)message() string {
 }
 
 ///
+/// Buffer
+///
+
+struct C.TF_Buffer {}
+fn C.TF_NewBuffer() &C.TF_Buffer
+fn C.TF_NewBufferFromString(&char, u64) &C.TF_Buffer
+fn C.TF_DeleteBuffer(&C.TF_Buffer)
+fn C.TF_GetBuffer(&C.TF_Buffer)C.TF_Buffer
+
+struct Buffer {
+	buffer &C.TF_Buffer
+}
+
+pub fn new_buffer() Buffer {
+	return Buffer{ C.TF_NewBuffer() }
+}
+
+pub fn new_buffer_from_string(buffer string) Buffer {
+	return Buffer{ C.TF_NewBufferFromString(&char(buffer.str), buffer.len) }
+}
+
+pub fn (this Buffer)delete() {
+	C.TF_DeleteBuffer(this.buffer)
+}
+
+///
 /// TF_Graph
 ///
 
