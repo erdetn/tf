@@ -206,7 +206,7 @@ pub fn new_session(graph &Graph, session_options &SessionOptions, status &Status
 	}
 }
 
-pub fn load_session_from_model(session_options &SessionOptions,
+pub fn new_session_from_model(session_options &SessionOptions,
 							   run_options     &Buffer,
 							   export_dir       string,
 							   tags           &&char,
