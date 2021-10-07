@@ -240,7 +240,7 @@ pub fn new_session(graph &Graph, session_options &SessionOptions, status &Status
 			status.status_ptr
 		)
 	}
-}
+} 
 
 pub fn new_session_from_model(session_options &SessionOptions,
 							   run_options     &Buffer,
@@ -269,3 +269,37 @@ pub fn (this Session)delete(status &Status) {
 	C.TF_DeleteSession(this.session_ptr, status.status_ptr)
 }
 
+///
+/// TF data types
+///
+pub enum DataType {
+	tf_float      = C.TF_FLOAT      // [1]
+	tf_double     = C.TF_DOUBLE     // [2]
+	tf_int32      = C.TF_INT32      // [3] Int32 tensors are always in 'host' memory.
+	tf_uint8      = C.TF_UINT8      // [4]
+	tf_int16      = C.TF_INT16      // [5]
+	tf_int8       = C.TF_INT8       // [6]
+	tf_string     = C.TF_STRING     // [7]
+	tf_complex64  = C.TF_COMPLEX64  // [8] Single-precision complex
+	tf_complex    = C.TF_COMPLEX    // [8] Old identifier kept for API backwards compatibility
+	tf_int64      = C.TF_INT64      // [9]
+	tf_bool       = C.TF_BOOL       // [10]
+	tf_qint8      = C.TF_QINT8      // [11] Quantized int8
+	tf_quint8     = C.TF_QUINT8     // [12] Quantized uint8
+	tf_qint32     = C.TF_QINT32     // [13] Quantized int32
+	tf_bfloat16   = C.TF_BFLOAT16   // [14] Float32 truncated to 16 bits.  Only for cast ops.
+	tf_qint16     = C.TF_QINT16     // [15] Quantized int16
+	tf_quint16    = C.TF_QUINT16    // [16] Quantized uint16
+	tf_uint16     = C.TF_UINT16     // [17]
+	tf_complex128 = C.TF_COMPLEX128 // [18] Double-precision complex
+	tf_half       = C.TF_HALF       // [19]
+	tf_resource   = C.TF_RESOURCE   // [20]
+	tf_variant    = C.TF_VARIANT    // [21]
+	tf_uint32     = C.TF_UINT32     // [22]
+	tf_uint64     = C.TF_UINT64     // [23]
+}
+
+fn C.TF_DataTypeSize(int) u32
+pub fn sizeof_datatype(data_type DataType) u32 {
+	return C.TF_DataTypeSize(int(data_type))
+}
