@@ -303,3 +303,82 @@ fn C.TF_DataTypeSize(int) u32
 pub fn sizeof_datatype(data_type DataType) u32 {
 	return C.TF_DataTypeSize(int(data_type))
 }
+
+///
+/// Tensor
+///
+
+struct C.TF_Tensor {}
+
+pub struct Tensor {
+	tensor_ptr &C.TF_Tensor
+}
+
+fn C.TF_NewTensor(int, &i64, int, voidptr, u32, voidptr, voidptr) &C.TF_Tensor
+
+pub fn new_tensor<T>(data_type DataType, dimensions []i64, data []T) &Tensor{
+	return &Tensor {
+		C.TF_NewTensor(int(data_type), 
+					&i64(dimensions[0]), dimensions.len, 
+					voidptr(data[0]), data.len,
+					null, null)
+	}
+}
+
+fn C.TF_AllocateTensor(int, &i64, int, u32) &C.TF_Tensor
+pub fn allocate_tensor(data_type DataType, dimensions []i64, data_len u32) &Tensor {
+	return &Tensor{
+		C.TF_AllocateTensor(int(data_type),
+							&i64(dimensions[0]), dimensions.len,
+							data_len)
+	}
+}
+
+fn C.TF_TensorMaybeMove(&C.TF_Tensor) &C.TF_Tensor
+pub fn (this Tensor)move() &Tensor {
+	return &Tensor {
+		C.TF_TensorMaybeMove(this.tensor_ptr)
+	}
+}
+
+fn C.TF_DeleteTensor(&C.TF_Tensor)
+pub fn (this Tensor)delete() {
+	C.TF_DeleteTensor(this.tensor_ptr)
+}
+
+fn C.TF_TensorIsAligned(&C.TF_Tensor) bool
+pub fn (this Tensor)is_aligned() bool {
+	return C.TF_TensorIsAligned(this.tensor_ptr)
+}
+
+fn C.TF_TensorType(&C.TF_Tensor) int
+pub fn (this Tensor)data_type() DataType {
+	return DataType(C.TF_TensorType(this.tensor_ptr))
+}
+
+fn C.TF_NumDims(&C.TF_Tensor) int
+pub fn (this Tensor)dimensions() int {
+	return int(C.TF_NumDims(this.tensor_ptr))
+}
+
+fn C.TF_Dim(&C.TF_Tensor, int) i64
+pub fn (this Tensor)tensor_dimension(index int) i64 {
+	return i64(C.TF_Dim(this.tensor_ptr, index))
+}
+
+fn C.TF_TensorByteSize(&C.TF_Tensor) u32
+pub fn (this Tensor)size_in_bytes() u32 {
+	return u32(C.TF_TensorByteSize(this.tensor_ptr))
+}
+
+fn C.TF_TensorData(&C.TF_Tensor) voidptr
+pub fn (this Tensor)data_ptr() voidptr {
+	// TODO: supporting vectorize data of type <T>
+	return C.TF_TensorData(this.tensor_ptr)
+}
+
+
+fn C.TF_TensorElementCount(&C.TF_Tensor) i64
+pub fn (this Tensor)elements_count() i64 {
+	return C.TF_TensorElementCount(this.tensor_ptr)
+}
