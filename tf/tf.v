@@ -3,6 +3,9 @@ module tf
 #flag -I /usr/include/
 #flag -l tensorflow
 
+#include <memory.h>
+#include <string.h>
+#include <stdlib.h>
 #include <tensorflow/c/c_api.h>
 
 pub const null = voidptr(0)
@@ -137,6 +140,50 @@ pub fn (this SessionOptions)delete() {
 }
 
 ///
+/// Input, Output, Function and Operation structs
+///
+
+struct C.TF_OperationDescription{}
+struct C.TF_Operation{}
+struct C.TF_Input{}
+
+struct C.TF_Output{
+	oper  &C.TF_Operation
+	index  int
+}
+
+pub struct Output {
+	out_ptr &C.TF_Output
+}
+
+pub fn new_output() &Output {
+	return &Output{
+		unsafe {
+			&C.TF_Output(C.malloc(int(sizeof(C.TF_Output))))
+		}
+	}
+}
+
+struct C.TF_Function{}
+struct C.TF_FunctionOptions{}
+
+pub struct Operation {
+	operation_ptr &C.TF_Operation
+}
+
+pub fn (this Operation)output(index int) &Output {
+	ret_out := &Output {
+		&C.TF_Output {
+			this.operation_ptr,
+			index
+		}
+	}
+	return ret_out
+}
+
+fn C.TF_GraphOperationByName(&C.TF_Graph, &char) &C.TF_Operation
+
+///
 /// TF_Graph
 ///
 
@@ -156,16 +203,12 @@ pub fn (this Graph)delete() {
 	C.TF_DeleteGraph(this.graph_ptr)
 }
 
-///
-/// Input, Output, Function and Operation structs
-///
-
-struct C.TF_OperationDescription{}
-struct C.TF_Operation{}
-struct C.TF_Input{}
-struct C.TF_Output{}
-struct C.TF_Function{}
-struct C.TF_FunctionOptions{}
+pub fn (this Graph)get_operation_by_name(operation_name string) Operation {
+	ret_op := Operation{
+		C.TF_GraphOperationByName(this.graph_ptr, &char(operation_name.str))
+	}
+	return ret_op
+}
 
 ///
 /// Session
@@ -173,7 +216,6 @@ struct C.TF_FunctionOptions{}
 struct C.TF_Session{}
 
 fn C.TF_NewSession(&C.TF_Graph, &C.TF_SessionOptions, &C.TF_Status) &C.TF_Session
-// (TF_Graph* graph, const TF_SessionOptions* opts, TF_Status* status)
 
 fn C.TF_LoadSessionFromSavedModel(&C.TF_SessionOptions,
 								  &C.TF_Buffer,
@@ -181,12 +223,6 @@ fn C.TF_LoadSessionFromSavedModel(&C.TF_SessionOptions,
 								  &C.TF_Graph,
 								  &C.TF_Buffer,
 								  &C.TF_Status) &C.TF_Session
-// TF_LoadSessionFromSavedModel(const TF_SessionOptions* session_options, 
-//                              const TF_Buffer* run_options,
-//                              const char* export_dir, 
-//                              const char* const* tags, int tags_len,
-//                              TF_Graph* graph, TF_Buffer* meta_graph_def, 
-//                              TF_Status* status);
 
 fn C.TF_CloseSession(&C.TF_Session, &C.TF_Status)
 
