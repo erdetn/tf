@@ -261,6 +261,38 @@ pub fn new_session_from_model(session_options &SessionOptions,
 	}
 }
 
+fn C.TF_SessionRun(&C.TF_Session, 
+                   // RunOptions
+                   &C.TF_Buffer, 
+                   // Input tensors
+                   &C.TF_Output, &&C.TF_Tensor, int,
+                   // Output tensors
+                   &C.TF_Output, &&C.TF_Tensor, int,
+                   // Target operations
+                   &&C.TF_Operation, int,
+                   // RunMetadata
+                   &C.TF_Buffer,
+                   // Output status
+                   &C.TF_Status)
+
+pub fn (this Session)run(buffer Buffer,
+                         input  Output,
+                         input_tensors []Tensor, // len = input_tensors.len
+                         output Output
+                         output_tensors []Tensor, // len = output_tensors.len
+                         opers []Operation, //len = opers.len
+                         run_metadata Buffer,
+                         mut status Status) {
+	C.TF_SessionRun(this.session_ptr,
+                    input.out_ptr,
+                    &input_tensors[0].tensor_ptr, input_tensors.len,
+                    output.out_ptr,
+                    &output_tensors[0].tensor_ptr, output_tensors.len,
+                    &opers[0].operation_ptr, opers.len,
+                    run_metadata.buffer_ptr,
+                    status.status_ptr)
+}
+
 pub fn (this Session)close(status &Status) {
 	C.TF_CloseSession(this.session_ptr, status.status_ptr)
 }
@@ -376,7 +408,6 @@ pub fn (this Tensor)data_ptr() voidptr {
 	// TODO: supporting vectorize data of type <T>
 	return C.TF_TensorData(this.tensor_ptr)
 }
-
 
 fn C.TF_TensorElementCount(&C.TF_Tensor) i64
 pub fn (this Tensor)elements_count() i64 {
