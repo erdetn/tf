@@ -96,7 +96,7 @@ fn C.TF_NewBufferFromString(&char, u64) &C.TF_Buffer
 fn C.TF_DeleteBuffer(&C.TF_Buffer)
 fn C.TF_GetBuffer(&C.TF_Buffer)C.TF_Buffer
 
-struct Buffer {
+pub struct Buffer {
 	buffer_ptr &C.TF_Buffer
 }
 
@@ -156,12 +156,24 @@ pub struct Output {
 	out_ptr &C.TF_Output
 }
 
-pub fn new_output() &Output {
-	return &Output{
+pub fn new_output() Output {
+	return Output{
 		unsafe {
 			&C.TF_Output(C.malloc(int(sizeof(C.TF_Output))))
 		}
 	}
+}
+
+pub fn new_output_from_operation(operation Operation) Output{
+	return Output {
+		unsafe {
+			&C.TF_Output{operation.operation_ptr, 0}
+		}
+	}
+}
+
+pub fn (output Output)is_null() bool {
+	return (output.out_ptr == voidptr(0))
 }
 
 struct C.TF_Function{}
@@ -171,14 +183,13 @@ pub struct Operation {
 	operation_ptr &C.TF_Operation
 }
 
-pub fn (this Operation)output(index int) &Output {
-	ret_out := &Output {
+pub fn (this Operation)output(index int) Output {
+	return Output {
 		&C.TF_Output {
 			this.operation_ptr,
 			index
 		}
 	}
-	return ret_out
 }
 
 fn C.TF_GraphOperationByName(&C.TF_Graph, &char) &C.TF_Operation
@@ -208,6 +219,17 @@ pub fn (this Graph)get_operation_by_name(operation_name string) Operation {
 		C.TF_GraphOperationByName(this.graph_ptr, &char(operation_name.str))
 	}
 	return ret_op
+}
+
+pub fn (this Graph)get_output(operation_name string, index int) Output {
+	return Output {
+		unsafe {
+			&C.TF_Output{
+				C.TF_GraphOperationByName(this.graph_ptr, &char(operation_name.str)),
+				index
+			}
+		}
+	}
 }
 
 ///
@@ -242,19 +264,18 @@ pub fn new_session(graph &Graph, session_options &SessionOptions, status &Status
 	}
 } 
 
-pub fn new_session_from_model(session_options &SessionOptions,
-							   run_options     &Buffer,
-							   export_dir       string,
-							   tags           &&char,
-							   tags_len        u32,
-							   graph           &Graph,
-							   meta_graph_def  &Buffer,
-							   status          &Status) Session {
+pub fn new_session_from_model(session_options  SessionOptions,
+							   run_options     Buffer,
+							   export_dir      string,
+							   tags            []&char,
+							   graph           Graph,
+							   meta_graph_def  Buffer,
+							   status          Status) Session {
 	return Session {C.TF_LoadSessionFromSavedModel(
 		session_options.session_options_ptr,
 		run_options.buffer_ptr,
 		&char(export_dir.str),
-		tags, int(tags_len),
+		unsafe{ &&char(&tags[0]) }, tags.len,
 		graph.graph_ptr,
 		meta_graph_def.buffer_ptr,
 		status.status_ptr)
@@ -275,19 +296,22 @@ fn C.TF_SessionRun(&C.TF_Session,
                    // Output status
                    &C.TF_Status)
 
-pub fn (this Session)run(buffer Buffer,
-                         input  Output,
-                         input_tensors []Tensor, // len = input_tensors.len
-                         output Output
-                         output_tensors []Tensor, // len = output_tensors.len
+pub fn (this Session)run(// RunOptions
+                         buffer Buffer,
+                         // Input tensors
+                         input  Output, input_tensors []Tensor, // len = input_tensors.len
+                         // Output tensors
+                         output Output, output_tensors []Tensor, // len = output_tensors.len
+                         // Target operations
                          opers []Operation, //len = opers.len
+                         // RunMetadata
                          run_metadata Buffer,
+                         // Output status
                          mut status Status) {
 	C.TF_SessionRun(this.session_ptr,
-                    input.out_ptr,
-                    &input_tensors[0].tensor_ptr, input_tensors.len,
-                    output.out_ptr,
-                    &output_tensors[0].tensor_ptr, output_tensors.len,
+	                buffer.buffer_ptr,
+                    input.out_ptr, &input_tensors[0].tensor_ptr, input_tensors.len,
+                    output.out_ptr, &output_tensors[0].tensor_ptr, output_tensors.len,
                     &opers[0].operation_ptr, opers.len,
                     run_metadata.buffer_ptr,
                     status.status_ptr)
@@ -346,29 +370,45 @@ pub struct Tensor {
 	tensor_ptr &C.TF_Tensor
 }
 
-fn C.TF_NewTensor(int, &i64, int, voidptr, u32, voidptr, voidptr) &C.TF_Tensor
+fn C.TF_NewTensor(int, &i64, int, voidptr, u32, fn(voidptr, u32, voidptr), voidptr) &C.TF_Tensor
 
-pub fn new_tensor<T>(data_type DataType, dimensions []i64, data []T) &Tensor{
-	return &Tensor {
+// empty function
+fn no_op_deallocator(data voidptr, a u32, b voidptr) {
+
+}
+
+pub fn new_tensor<T>(data_type DataType, dimensions []i64, data []T) Tensor{
+	return Tensor {
 		C.TF_NewTensor(int(data_type), 
-					&i64(dimensions[0]), dimensions.len, 
-					voidptr(data[0]), data.len,
-					null, null)
+					unsafe { &i64(&dimensions[0]) }, dimensions.len, 
+					voidptr(&data[0]), data.len,
+					no_op_deallocator, null)
 	}
 }
 
+pub fn (this Tensor)is_null() bool {
+	return this.tensor_ptr == voidptr(0)
+}
+
 fn C.TF_AllocateTensor(int, &i64, int, u32) &C.TF_Tensor
-pub fn allocate_tensor(data_type DataType, dimensions []i64, data_len u32) &Tensor {
-	return &Tensor{
+pub fn allocate_tensor(data_type DataType, dimensions []i64, data_len u32) Tensor {
+	return Tensor{
 		C.TF_AllocateTensor(int(data_type),
 							&i64(dimensions[0]), dimensions.len,
 							data_len)
 	}
 }
 
+pub fn new_empty_tensors(count u32) Tensor {
+	mem_len := sizeof(&C.TF_Tensor)*count
+	return Tensor {
+		unsafe { &C.TF_Tensor(C.malloc(mem_len)) }
+	}
+}
+
 fn C.TF_TensorMaybeMove(&C.TF_Tensor) &C.TF_Tensor
-pub fn (this Tensor)move() &Tensor {
-	return &Tensor {
+pub fn (this Tensor)move() Tensor {
+	return Tensor {
 		C.TF_TensorMaybeMove(this.tensor_ptr)
 	}
 }
