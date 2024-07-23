@@ -43,12 +43,9 @@ pub fn (sh Shape)get(index int) !int {
 	return int(sh.shape[index])
 }
 
-pub fn (mut sh Shape)ptr() !voidptr {
-	if sh.shape.len == 0 {
-		return error("Trying to get pointer from empty shape array.")
-	}
+pub fn (mut sh Shape)ptr() voidptr {
 	return unsafe {
-		voidptr(sh.shape[0])
+		voidptr(sh.shape.data)
 	}
 }
 

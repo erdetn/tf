@@ -8,27 +8,28 @@ pub type Tensor = C.TF_Tensor
 fn no_op_deallocator(data voidptr, a u32, b voidptr) {}
 
 fn C.TF_NewTensor(data_type int, dims &i64, num_dims int, data voidptr, len u32, deallocator fn (voidptr, u32, voidptr), arg voidptr) &C.TF_Tensor
-pub fn new_tensor[T](data_type DataType, shape []i64, buffer []T) !&Tensor {
+pub fn new_tensor[T](data_type DataType, shape Shape, buffer []T) !&Tensor {
 	if data_type.size() != sizeof(T) {
 		return error('data_type.size() is not matching with data type of buffer')
 	}
 	buff_len := u32((buffer.len) * sizeof(data_type.size()))
 	return unsafe {
-		&Tensor(C.TF_NewTensor(int(data_type), &i64(shape.data), shape.len, buffer.data,
+		&Tensor(C.TF_NewTensor(int(data_type), &i64(shape.ptr()), shape.len(), buffer.data,
 			buff_len, no_op_deallocator, nil))
 	}
 }
 
 fn C.TF_AllocateTensor(int, &i64, int, u32) &C.TF_Tensor
-pub fn allocate_tensor(data_type DataType, shape []i64) &Tensor {
+pub fn allocate_tensor(data_type DataType, shape Shape) &Tensor {
 	mut data_len := u32(data_type.size())
 	mut num_elements := u32(1)
-	for i := 0; i < shape.len; i++ {
-		num_elements *= u32(shape[i])
+	for i := 0; i < shape.len(); i++ {
+		u:= shape.get(i) or {1}
+		num_elements *= u32(u)
 	}
 	data_len *= num_elements
 	return unsafe {
-		&Tensor(C.TF_AllocateTensor(int(data_type), &i64(shape.data), shape.len, data_len))
+		&Tensor(C.TF_AllocateTensor(int(data_type), &i64(shape.ptr()), shape.len(), data_len))
 	}
 }
 
@@ -65,32 +66,33 @@ fn (t &Tensor) dim(index int) i64 {
 }
 
 fn C.TF_SetShape(t &C.TF_Tensor, dims &C.i64, num_dims int)
-pub fn (t &Tensor) set_shape(shape []i64) {
+pub fn (t &Tensor) set_shape(shape Shape) {
 	unsafe {
-		C.TF_SetShape(t, &C.i64(shape.data), int(shape.len))
+		C.TF_SetShape(t, &C.i64(shape.ptr()), int(shape.len()))
 	}
 }
 
-pub fn (t &Tensor) shape() []i64 {
-	mut dims := []i64{}
+pub fn (t &Tensor) shape() Shape {
+	mut shape := Shape{}
 	num_dims := t.num_dims()
 
 	if num_dims == 0 {
-		return []i64{}
+		return shape
 	}
 
 	for i := 0; i < num_dims; i++ {
-		dims << t.dim(i)
+		shape.add(int(t.dim(i)))
 	}
-	return dims
+	return shape
 }
 
 pub fn (t &Tensor) data_len() usize {
 	unit_sz := t.data_type().size()
 	shape := t.shape()
 	mut dl := usize(1)
-	for i := 0; i < shape.len; i++ {
-		dl *= usize(shape[i])
+	for i := 0; i < shape.len(); i++ {
+		u:= shape.get(i) or {1}
+		dl *= usize(u)
 	}
 	dl *= unit_sz
 	return dl
@@ -110,4 +112,3 @@ fn C.TF_TensorElementCount(&C.TF_Tensor) i64
 pub fn (t &Tensor) elements_count() i64 {
 	return C.TF_TensorElementCount(t)
 }
-

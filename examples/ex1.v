@@ -12,7 +12,7 @@ fn main() {
 	op_desc := graph.new_operation("Const", "my_const")
 	op_desc.set_attr_type("dtype", .float)
 	dump(op_desc)
-	tensor := tf.allocate_tensor(.float, [i64(2)])
+	tensor := tf.allocate_tensor(.float, tf.shape(2))
 	dump(tensor)
 	unsafe {
 		ptr := &f32(tensor.ptr())
