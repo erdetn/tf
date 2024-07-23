@@ -3,6 +3,8 @@ module main
 import tf 
 
 fn main() {
+	print("version: ${tf.version()}\n")
+
     status := tf.new_status()
 
 	graph := tf.new_graph()
@@ -13,11 +15,11 @@ fn main() {
 	tensor := tf.allocate_tensor(.float, [i64(2)])
 	dump(tensor)
 	unsafe {
-		ptr := &f32(tensor.dataptr())
+		ptr := &f32(tensor.ptr())
 		*(ptr) = f32(3.14)
 		*(ptr+4) = f32(6.28)
 
-		fptr := &f32(tensor.dataptr())
+		fptr := &f32(tensor.ptr())
 		f1 := f32(*(fptr))
 		f2 := f32(*(fptr+4))
 		dump(f1)
