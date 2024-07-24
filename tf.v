@@ -16,3 +16,12 @@ pub fn version() string {
 		return cstring_to_vstring(C.TF_Version())
 	}
 }
+
+pub fn is_null[T](ptr &T) bool {
+	unsafe {
+		if ptr == voidptr(0) {
+			return true
+		}
+	}
+	return false
+}

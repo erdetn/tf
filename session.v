@@ -41,6 +41,10 @@ pub fn new_session(graph &Graph, session_options &SessionOptions, status &Status
 	}
 }
 
+pub fn (g &Graph)new_session(sess_opts &SessionOptions, status &Status) &Session {
+	return new_session(g, sess_opts, status)
+}
+
 fn C.TF_LoadSessionFromSavedModel(&C.TF_SessionOptions, &C.TF_Buffer, &char, &charptr, int, &C.TF_Graph, &C.TF_Buffer, &C.TF_Status) &C.TF_Session
 pub fn new_session_from_model(session_options &SessionOptions, run_options &Buffer, export_dir string, tags []string, graph &Graph, meta_graph_def &Buffer, status &Status) &Session {
 	mut ctags := []charptr{len: tags.len, init: charptr(0)}
