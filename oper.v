@@ -124,8 +124,15 @@ pub:
 	// The index of the input within oper
 	index int
 }
-
 pub type Input = C.TF_Input
+
+pub fn new_input() &Input {
+	return unsafe { &Input(malloc(sizeof(Input))) }
+}
+
+pub fn Input.new() &Input {
+	return unsafe { &Input(malloc(sizeof(Input))) }
+}
 
 fn C.TF_OperationInputType(oper_in C.TF_Input) int
 pub fn (inp &Input) dtype() DataType {
@@ -148,6 +155,10 @@ pub fn (out &Output) operation() &Operation {
 }
 
 pub fn new_output() &Output {
+	return unsafe { &Output(malloc(sizeof(Output))) }
+}
+
+pub fn Output.new() &Output {
 	return unsafe { &Output(malloc(sizeof(Output))) }
 }
 

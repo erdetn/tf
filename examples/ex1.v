@@ -5,9 +5,9 @@ import tf
 fn main() {
 	print('version: ${tf.version()}\n')
 
-	status := tf.new_status()
+	status := tf.Status.new()
 
-	graph := tf.new_graph()
+	graph := tf.Graph.new()
 
 	op_desc := graph.new_operation('Const', 'my_const')
 	op_desc.set_type(.float)

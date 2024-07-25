@@ -21,12 +21,20 @@ pub fn new_string() &String {
 	return s
 }
 
+pub fn String.new() &String {
+	return new_string()
+}
+
 fn C.TF_StringCopy(dst &C.TF_TString, str &char, size isize)
 pub fn string_from(source string) &String {
 	mut s := &String{}
 	C.TF_StringCopy(s, source.str, source.len)
 	return s
 }
+pub fn String.new_from(source string) &String {
+	return string_from(source)
+}
+
 
 fn C.TF_StringAssignView(dst &C.TF_TString, src &char, size isize)
 

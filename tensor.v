@@ -17,6 +17,10 @@ pub fn new_tensor(t &ITensor) &Tensor {
 	}
 }
 
+pub fn Tensor.new(t &ITensor) &Tensor {
+	return new_tensor(t)
+}
+
 fn C.TF_AllocateTensor(int, &i64, int, u32) &C.TF_Tensor
 pub fn allocate_tensor(dtype DataType, shape Shape) &Tensor {
 	mut data_len := u32(dtype.size())

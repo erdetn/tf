@@ -11,6 +11,10 @@ pub fn new_graph() &Graph {
 	return unsafe { &Graph(C.TF_NewGraph()) }
 }
 
+pub fn Graph.new() &Graph {
+	return unsafe { &Graph(C.TF_NewGraph()) }
+}
+
 pub fn (g &Graph) delete() {
 	C.TF_DeleteGraph(g)
 }

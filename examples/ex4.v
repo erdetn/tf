@@ -41,8 +41,8 @@ fn (t &TensorI32) str() string {
 // -------------------------------------------------- //
 
 fn main() {
-	status := tf.new_status()
-	graph := tf.new_graph()
+	status := tf.Status.new()
+	graph := tf.Graph.new()
 
 	a_val := &TensorI32{
 		value: 10
@@ -53,8 +53,8 @@ fn main() {
 	}
 	println(b_val)
 
-	a := tf.new_tensor(a_val)
-	b := tf.new_tensor(b_val)
+	a := tf.Tensor.new(a_val)
+	b := tf.Tensor.new(b_val)
 
 	ai := *(&i32(a.ptr()))
 	bi := *(&i32(b.ptr()))
@@ -82,7 +82,7 @@ fn main() {
 	op_add := desc_add.finish_operation(status)
 	output := *op_add.output(0)
 
-	sess_opts := tf.new_session_options()
+	sess_opts := tf.SessionOptions.new()
 	session := graph.new_session(sess_opts, status)
 
 	output_value := []&tf.Tensor{len: 1, init: &tf.Tensor(unsafe { nil })}

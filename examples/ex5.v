@@ -3,9 +3,9 @@ module main
 import tf
 
 fn main() {
-	status := tf.new_status()
+	status := tf.Status.new()
 
-	graph := tf.new_graph()
+	graph := tf.Graph.new()
 
 	op_desc := graph.new_operation('Const', 'my_const')
 	op_desc.set_type(.float)

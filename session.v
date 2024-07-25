@@ -8,6 +8,9 @@ fn C.TF_NewSessionOptions() &C.TF_SessionOptions
 pub fn new_session_options() &SessionOptions {
 	return unsafe { &SessionOptions(C.TF_NewSessionOptions()) }
 }
+pub fn SessionOptions.new() &SessionOptions {
+	return unsafe { &SessionOptions(C.TF_NewSessionOptions()) }
+}
 
 fn C.TF_SetTarget(&C.TF_SessionOptions, &char)
 pub fn (so &SessionOptions) set_target(target string) {

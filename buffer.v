@@ -20,10 +20,20 @@ pub fn new_buffer() &Buffer {
 	}
 }
 
+pub fn Buffer.new() &Buffer {
+	return unsafe {
+		&Buffer(C.TF_NewBuffer())
+	}
+}
+
 pub fn new_buffer_from_string(buffer string) &Buffer {
 	return unsafe {
 		&Buffer(C.TF_NewBufferFromString(&char(buffer.str), buffer.len))
 	}
+}
+
+pub fn Buffer.new_from_string(buffer string) &Buffer {
+	return new_buffer_from_string(buffer)
 }
 
 pub fn (b &Buffer) delete() {

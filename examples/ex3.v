@@ -3,7 +3,7 @@ module main
 import tf
 
 fn print_status(status &tf.Status) {
-	if status.code() != .ok {
+	if !status.okay() {
 		print('ERROR: ${status.message()}\n')
 	} else {
 		print('SUCCESS: ${status.message()}\n')
@@ -13,9 +13,9 @@ fn print_status(status &tf.Status) {
 fn create_tensor_from_proto() {
 	tensor_proto_data := 'YourSerializedTensorProtoData'
 
-	buff := tf.new_buffer_from_string(tensor_proto_data)
+	buff := tf.Buffer.new_from_string(tensor_proto_data)
 
-	st := tf.new_status()
+	st := tf.Status.new()
 
 	tensor := buff.tensor(st)
 

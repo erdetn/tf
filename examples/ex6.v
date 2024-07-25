@@ -32,10 +32,10 @@ fn (t &TensorArrayF32) shape() tf.Shape {
 // -------------------------------------------------- //
 
 fn main() {
-	mut graph := tf.new_graph()
-	mut status := tf.new_status()
+	mut graph := tf.Graph.new()
+	mut status := tf.Status.new()
 
-	mut session_opt := tf.new_session_options()
+	mut session_opt := tf.SessionOptions.new()
 	mut run_opts := &tf.Buffer(tf.null)
 
 	saved_model_dir := 'tmpf32/'
@@ -92,7 +92,7 @@ fn main() {
 		data.buff << f32(i)
 	}
 
-	int_tensor := tf.new_tensor(data)
+	int_tensor := tf.Tensor.new(data)
 
 	dump(int_tensor)
 

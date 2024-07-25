@@ -32,6 +32,10 @@ pub fn new_status() &Status {
 	return unsafe { &Status(C.TF_NewStatus()) }
 }
 
+pub fn Status.new() &Status {
+	return unsafe { &Status(C.TF_NewStatus()) }
+}
+
 fn C.TF_DeleteStatus(&C.TF_Status)
 pub fn (s &Status) delete() {
 	C.TF_DeleteStatus(s)
