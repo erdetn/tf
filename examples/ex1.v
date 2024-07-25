@@ -10,7 +10,7 @@ fn main() {
 	graph := tf.new_graph()
 
 	op_desc := graph.new_operation("Const", "my_const")
-	op_desc.set_attr_type("dtype", .float)
+	op_desc.set_type(.float)
 	dump(op_desc)
 	tensor := tf.allocate_tensor(.float, tf.shape(2))
 	dump(tensor)
