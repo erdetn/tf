@@ -142,7 +142,7 @@ pub fn (op &Operation) output(index int) &Output {
 	}
 }
 
-pub fn (op &Operator) input(index int) &Input {
+pub fn (op &Operation) input(index int) &Input {
 	return unsafe {
 		&Input {
 			oper: op 

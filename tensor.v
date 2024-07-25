@@ -8,14 +8,12 @@ pub type Tensor = C.TF_Tensor
 fn no_op_deallocator(data voidptr, a u32, b voidptr) {}
 
 fn C.TF_NewTensor(data_type int, dims &i64, num_dims int, data voidptr, len u32, deallocator fn (voidptr, u32, voidptr), arg voidptr) &C.TF_Tensor
-pub fn new_tensor[T](data_type DataType, shape Shape, buffer []T) !&Tensor {
-	if data_type.size() != sizeof(T) {
-		return error('data_type.size() is not matching with data type of buffer')
-	}
-	buff_len := u32((buffer.len) * sizeof(data_type.size()))
+pub fn new_tensor(t &ITensor) &Tensor {
+	shape := (*t).shape()
+	println(t)
 	return unsafe {
-		&Tensor(C.TF_NewTensor(int(data_type), &i64(shape.ptr()), shape.len(), buffer.data,
-			buff_len, no_op_deallocator, nil))
+		&Tensor(C.TF_NewTensor(int((*t).dtype()), &i64(shape.ptr()), shape.len(),
+			(*t).data(), (*t).len(), no_op_deallocator, nil))
 	}
 }
 
@@ -24,7 +22,7 @@ pub fn allocate_tensor(data_type DataType, shape Shape) &Tensor {
 	mut data_len := u32(data_type.size())
 	mut num_elements := u32(1)
 	for i := 0; i < shape.len(); i++ {
-		u:= shape.get(i) or {1}
+		u := shape.get(i) or { 1 }
 		num_elements *= u32(u)
 	}
 	data_len *= num_elements
@@ -91,7 +89,7 @@ pub fn (t &Tensor) data_len() usize {
 	shape := t.shape()
 	mut dl := usize(1)
 	for i := 0; i < shape.len(); i++ {
-		u:= shape.get(i) or {1}
+		u := shape.get(i) or { 1 }
 		dl *= usize(u)
 	}
 	dl *= unit_sz
