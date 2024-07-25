@@ -84,18 +84,6 @@ pub fn (t &Tensor) shape() Shape {
 	return shape
 }
 
-pub fn (t &Tensor) data_len() usize {
-	unit_sz := t.dtype().size()
-	shape := t.shape()
-	mut dl := usize(1)
-	for i := 0; i < shape.len(); i++ {
-		u := shape.get(i) or { 1 }
-		dl *= usize(u)
-	}
-	dl *= unit_sz
-	return dl
-}
-
 fn C.TF_TensorByteSize(&C.TF_Tensor) u32
 pub fn (t &Tensor) bytesize() u32 {
 	return u32(C.TF_TensorByteSize(t))
