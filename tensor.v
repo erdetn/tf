@@ -7,7 +7,7 @@ pub type Tensor = C.TF_Tensor
 
 fn no_op_deallocator(data voidptr, a u32, b voidptr) {}
 
-fn C.TF_NewTensor(data_type int, dims &i64, num_dims int, data voidptr, len u32, deallocator fn (voidptr, u32, voidptr), arg voidptr) &C.TF_Tensor
+fn C.TF_NewTensor(dtype int, dims &i64, num_dims int, data voidptr, len u32, deallocator fn (voidptr, u32, voidptr), arg voidptr) &C.TF_Tensor
 pub fn new_tensor(t &ITensor) &Tensor {
 	shape := (*t).shape()
 	println(t)
@@ -18,8 +18,8 @@ pub fn new_tensor(t &ITensor) &Tensor {
 }
 
 fn C.TF_AllocateTensor(int, &i64, int, u32) &C.TF_Tensor
-pub fn allocate_tensor(data_type DataType, shape Shape) &Tensor {
-	mut data_len := u32(data_type.size())
+pub fn allocate_tensor(dtype DataType, shape Shape) &Tensor {
+	mut data_len := u32(dtype.size())
 	mut num_elements := u32(1)
 	for i := 0; i < shape.len(); i++ {
 		u := shape.get(i) or { 1 }
@@ -27,7 +27,7 @@ pub fn allocate_tensor(data_type DataType, shape Shape) &Tensor {
 	}
 	data_len *= num_elements
 	return unsafe {
-		&Tensor(C.TF_AllocateTensor(int(data_type), &i64(shape.ptr()), shape.len(), data_len))
+		&Tensor(C.TF_AllocateTensor(int(dtype), &i64(shape.ptr()), shape.len(), data_len))
 	}
 }
 
@@ -47,7 +47,7 @@ pub fn (t &Tensor) is_aligned() bool {
 }
 
 fn C.TF_TensorType(&C.TF_Tensor) int
-pub fn (t &Tensor) data_type() DataType {
+pub fn (t &Tensor) dtype() DataType {
 	return unsafe {
 		DataType(C.TF_TensorType(t))
 	}
@@ -85,7 +85,7 @@ pub fn (t &Tensor) shape() Shape {
 }
 
 pub fn (t &Tensor) data_len() usize {
-	unit_sz := t.data_type().size()
+	unit_sz := t.dtype().size()
 	shape := t.shape()
 	mut dl := usize(1)
 	for i := 0; i < shape.len(); i++ {
