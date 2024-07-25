@@ -1,4 +1,4 @@
-module tf 
+module tf
 
 pub interface ITensor {
 	data() voidptr
@@ -13,7 +13,7 @@ pub interface ITensor {
 // TensorI32 should match with ITensor
 // struct TensorI32 {
 // mut:
-// 	value i32  
+// 	value i32
 // }
 
 // fn (t &TensorI32)data() voidptr {

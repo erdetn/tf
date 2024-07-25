@@ -4,7 +4,6 @@ struct C.TF_SessionOptions {}
 
 pub type SessionOptions = C.TF_SessionOptions
 
-
 fn C.TF_NewSessionOptions() &C.TF_SessionOptions
 pub fn new_session_options() &SessionOptions {
 	return unsafe { &SessionOptions(C.TF_NewSessionOptions()) }
@@ -41,7 +40,7 @@ pub fn new_session(graph &Graph, session_options &SessionOptions, status &Status
 	}
 }
 
-pub fn (g &Graph)new_session(sess_opts &SessionOptions, status &Status) &Session {
+pub fn (g &Graph) new_session(sess_opts &SessionOptions, status &Status) &Session {
 	return new_session(g, sess_opts, status)
 }
 

@@ -1,5 +1,4 @@
-module tf 
-
+module tf
 
 struct C.TF_TString {}
 
@@ -71,8 +70,8 @@ pub fn (s &String) delete() {
 	C.TF_StringDealloc(s)
 }
 
-pub fn (s &String)str() string {
-	return unsafe { 
+pub fn (s &String) str() string {
+	return unsafe {
 		cstring_to_vstring(s.ptr())
 	}
 }

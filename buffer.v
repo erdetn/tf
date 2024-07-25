@@ -32,8 +32,8 @@ pub fn (b &Buffer) delete() {
 
 // Parsing a serialized TensorProto into a TF_Tensor.
 fn C.TF_TensorFromProto(from &C.TF_Buffer, to &C.TF_Tensor, s &C.TF_Status)
-pub fn (b &Buffer)tensor(status &Status) &Tensor {
-	mut t := tf.allocate_tensor(.str, shape(int(b.length)))
+pub fn (b &Buffer) tensor(status &Status) &Tensor {
+	mut t := allocate_tensor(.str, shape(int(b.length)))
 	C.TF_TensorFromProto(b, t, status)
 	return t
 }

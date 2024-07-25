@@ -12,8 +12,8 @@ pub fn new_tensor(t &ITensor) &Tensor {
 	shape := (*t).shape()
 	println(t)
 	return unsafe {
-		&Tensor(C.TF_NewTensor(int((*t).dtype()), &i64(shape.ptr()), shape.len(),
-			(*t).data(), (*t).len(), no_op_deallocator, nil))
+		&Tensor(C.TF_NewTensor(int((*t).dtype()), &i64(shape.ptr()), shape.len(), (*t).data(),
+			(*t).len(), no_op_deallocator, nil))
 	}
 }
 

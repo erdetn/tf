@@ -19,7 +19,7 @@ pub fn version() string {
 
 pub fn is_null[T](ptr &T) bool {
 	unsafe {
-		if ptr == voidptr(0) {
+		if ptr == nil {
 			return true
 		}
 	}

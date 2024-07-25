@@ -1,9 +1,9 @@
 module main
 
-import tf 
+import tf
 
 fn main() {
-	s := tf.string_from("Hello Tf from V")
+	s := tf.string_from('Hello Tf from V')
 
-	println("stringify(s) = ${s.str()}")
+	println('stringify(s) = ${s.str()}')
 }

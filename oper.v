@@ -1,5 +1,4 @@
-module tf 
-
+module tf
 
 struct C.TF_OperationDescription {}
 
@@ -57,7 +56,7 @@ pub fn (od &OperationDescription) set_attr_tensor(attr_name string, value &Tenso
 
 fn C.TF_SetAttrType(desc &C.TF_OperationDescription, attr_name charptr, value C.TF_DataType)
 pub fn (od &OperationDescription) set_type(value DataType) {
-	attr_name := "dtype"
+	attr_name := 'dtype'
 	unsafe {
 		C.TF_SetAttrType(od, charptr(attr_name.str), C.TF_DataType(value))
 	}
@@ -91,25 +90,22 @@ pub fn (op &Operation) num_outputs() int {
 	}
 }
 
-
 struct C.TF_Operation {}
 
 pub type Operation = C.TF_Operation
 
 struct C.TF_Input {
 pub:
-	oper  &C.TF_Operation
-
+	oper &C.TF_Operation
 	// The index of the input within oper
-	index int 
+	index int
 }
 
 pub type Input = C.TF_Input
 
 pub struct C.TF_Output {
 pub:
-	oper  &C.TF_Operation
-
+	oper &C.TF_Operation
 	// The index of the input within oper
 	index int
 }
@@ -123,7 +119,6 @@ pub fn (out &Output) operation() &Operation {
 pub fn new_output() &Output {
 	return unsafe { &Output(malloc(sizeof(Output))) }
 }
-
 
 struct C.TF_Function {}
 
@@ -144,9 +139,9 @@ pub fn (op &Operation) output(index int) &Output {
 
 pub fn (op &Operation) input(index int) &Input {
 	return unsafe {
-		&Input {
-			oper: op 
-			index: index 
+		&Input{
+			oper: op
+			index: index
 		}
 	}
 }

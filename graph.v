@@ -1,4 +1,4 @@
-module tf 
+module tf
 
 struct C.TF_Graph {}
 
@@ -59,4 +59,3 @@ pub fn (g &Graph) get_tensor_shape(output Output, status &Status) []i64 {
 	}
 	return shape
 }
-

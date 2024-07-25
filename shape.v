@@ -1,23 +1,23 @@
-module tf 
+module tf
 
 pub struct Shape {
 mut:
-	shape []i64 
+	shape []i64
 }
 
-pub fn (sh Shape)str() string {
+pub fn (sh Shape) str() string {
 	if sh.shape.len == 0 {
-		return "(empty)"
+		return '(empty)'
 	}
-	mut s := "[ "
+	mut s := '[ '
 	for i in sh.shape {
-		s += "${i} "
+		s += '${i} '
 	}
-	s += "]"
+	s += ']'
 	return s
 }
 
-pub fn shape(dims ...int)  Shape {
+pub fn shape(dims ...int) Shape {
 	mut sh := Shape{}
 	for d in dims {
 		sh.shape << i64(d)
@@ -25,31 +25,31 @@ pub fn shape(dims ...int)  Shape {
 	return sh
 }
 
-pub fn (sh Shape)len() int {
+pub fn (sh Shape) len() int {
 	return int(sh.shape.len)
 }
 
-pub fn (mut sh Shape)set(index int, dim int)! {
+pub fn (mut sh Shape) set(index int, dim int) ! {
 	if index >= sh.shape.len {
-		return error("Index outside the range.")
+		return error('Index outside the range.')
 	}
 	sh.shape[index] = i64(dim)
 }
 
-pub fn (sh Shape)get(index int) !int {
+pub fn (sh Shape) get(index int) !int {
 	if index >= sh.shape.len {
-		return error("Index outside the range.")
+		return error('Index outside the range.')
 	}
 	return int(sh.shape[index])
 }
 
-pub fn (mut sh Shape)ptr() voidptr {
+pub fn (mut sh Shape) ptr() voidptr {
 	return unsafe {
 		voidptr(sh.shape.data)
 	}
 }
 
-pub fn (mut sh Shape)add(dim ...int) {
+pub fn (mut sh Shape) add(dim ...int) {
 	for d in dim {
 		sh.shape << i64(d)
 	}
