@@ -30,10 +30,6 @@ pub type Session = C.TF_Session
 
 fn C.TF_NewSession(&C.TF_Graph, &C.TF_SessionOptions, &C.TF_Status) &C.TF_Session
 
-fn C.TF_CloseSession(&C.TF_Session, &C.TF_Status)
-
-fn C.TF_DeleteSession(&C.TF_Session, &C.TF_Status)
-
 pub fn new_session(graph &Graph, session_options &SessionOptions, status &Status) &Session {
 	return unsafe {
 		&Session(C.TF_NewSession(graph, session_options, status))
@@ -68,10 +64,78 @@ pub fn (ss &Session) run(buffer &Buffer, inputs []Output, input_tensors []&Tenso
 	}
 }
 
+fn C.TF_CloseSession(&C.TF_Session, &C.TF_Status)
 pub fn (ss &Session) close(status &Status) {
 	C.TF_CloseSession(ss, status)
 }
 
+fn C.TF_DeleteSession(&C.TF_Session, &C.TF_Status)
 pub fn (ss &Session) delete(status &Status) {
 	C.TF_DeleteSession(ss, status)
+}
+
+struct C.TF_DeviceList {}
+
+pub type DeviceList = C.TF_DeviceList
+
+fn C.TF_SessionListDevices(session &C.TF_Session, status &C.TF_Status) &C.TF_DeviceList
+pub fn (ss &Session) device_list(status &Status) &DeviceList {
+	return C.TF_SessionListDevices(ss, status)
+}
+
+fn C.TF_DeleteDeviceList(list &C.TF_DeviceList)
+pub fn (list &DeviceList) delete() {
+	C.TF_DeleteDeviceList(list)
+}
+
+fn C.TF_DeviceListCount(list &C.TF_DeviceList) int
+pub fn (list &DeviceList) count() int {
+	return C.TF_DeviceListCount(list)
+}
+
+fn C.TF_DeviceListName(list &C.TF_DeviceList, index int, status &C.TF_Status) &char
+pub fn (list &DeviceList) name_of(index int, status &Status) string {
+	unsafe {
+		ptr := C.TF_DeviceListName(list, index, status)
+		if ptr == nil {
+			return ''
+		}
+		return cstring_to_vstring(ptr)
+	}
+}
+
+fn C.TF_DeviceListType(list &C.TF_DeviceList, index int, status &C.TF_Status) &char
+pub fn (list &DeviceList) type_of(index int, status &Status) string {
+	unsafe {
+		ptr := C.TF_DeviceListType(list, index, status)
+		if ptr == nil {
+			return ''
+		}
+		return cstring_to_vstring(ptr)
+	}
+}
+
+fn C.TF_DeviceListMemoryBytes(list &C.TF_DeviceList, index int, status &C.TF_Status) i64
+pub fn (list &DeviceList) memory_bytes_of(index int, status &Status) i64 {
+	return C.TF_DeviceListMemoryBytes(list, index, status)
+}
+
+pub struct Device {
+	name         string
+	dtype        string
+	memory_bytes i64
+}
+
+pub fn (list &DeviceList) devices(status &Status) []Device {
+	mut devs := []Device{}
+	count := list.count()
+
+	for i := 0; i < count; i++ {
+		devs << Device{
+			name: list.name_of(i, status)
+			dtype: list.type_of(i, status)
+			memory_bytes: list.memory_bytes_of(i, status)
+		}
+	}
+	return devs
 }

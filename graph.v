@@ -30,10 +30,19 @@ pub fn (g &Graph) get_output(operation_name string, index int) &Output {
 	}
 }
 
-fn C.TF_GraphSetTensorShape(g &C.TF_Graph, output C.TF_Output, dims &i64, num_dims int, status &C.TF_Status)
-pub fn (g &Graph) set_tensor_shape(output Output, dims []u64, status &Status) {
+fn C.TF_GraphNextOperation(g &C.TF_Graph, pos &usize) &C.TF_Operation
+pub fn (g &Graph) next_operation() (&Operation, usize) {
+	mut pos := usize(0)
 	unsafe {
-		C.TF_GraphSetTensorShape(g, output, &i64(dims[0]), dims.len, status)
+		op := C.TF_GraphNextOperation(g, &pos)
+		return op, pos
+	}
+}
+
+fn C.TF_GraphSetTensorShape(g &C.TF_Graph, output C.TF_Output, dims &i64, num_dims int, status &C.TF_Status)
+pub fn (g &Graph) set_tensor_shape(output Output, shape Shape, status &Status) {
+	unsafe {
+		C.TF_GraphSetTensorShape(g, output, &i64(shape.ptr()), shape.len(), status)
 	}
 }
 
@@ -45,17 +54,17 @@ pub fn (g &Graph) get_tensor_num_dims(output Output, status &Status) int {
 }
 
 fn C.TF_GraphGetTensorShape(g &C.TF_Graph, out C.TF_Output, dims &i64, num_dims int, status &C.TF_Status)
-pub fn (g &Graph) get_tensor_shape(output Output, status &Status) []i64 {
+pub fn (g &Graph) get_tensor_shape(output Output, status &Status) Shape {
 	mut n := g.get_tensor_num_dims(output, status)
 	if n < 1 {
-		return []i64{}
+		return Shape{}
 	}
 
-	mut shape := []i64{}
+	mut shape := Shape{}
 	mut dim := i64(0)
 	for i := 0; i < n; i++ {
 		C.TF_GraphGetTensorShape(g, output, &dim, i, status)
-		shape << dim
+		shape.shape << dim
 	}
 	return shape
 }

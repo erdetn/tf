@@ -71,6 +71,6 @@ pub fn (s &Status) payload(key string, value string) {
 	}
 }
 
-pub fn (s &Status)okay() bool {
-	return (s.code() == .ok)
+pub fn (s &Status) okay() bool {
+	return s.code() == .ok
 }
