@@ -28,7 +28,7 @@ fn create_tensor_from_proto() {
 		println(s1)
 	}
 	// Use the tensor as needed
-	if st.code() == .ok && tensor != tf.null {
+	if st.okay() && tensor != tf.null {
 		print('Tensor created successfully\n')
 	}
 

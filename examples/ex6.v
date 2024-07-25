@@ -50,14 +50,13 @@ fn main() {
 		session.delete(status)
 	}
 
-	if status.code() == .ok {
+	if status.okay() {
 		println('Loading of model is successfuly executed.')
 	} else {
 		println('Failed to load model:')
 		println('\t[${status.code()}] ${status.message()}}')
 		return
 	}
-	dump(status)
 
 	mut input := []tf.Output{len: num_inputs}
 	input[0] = tf.Output{
@@ -103,7 +102,7 @@ fn main() {
 	session.run(&tf.Buffer(tf.null), input, in_values, output, out_values, [], &tf.Buffer(tf.null),
 		status)
 
-	if status.code() == .ok {
+	if status.okay() {
 		println('Session run okay.')
 	} else {
 		println('Session failed to run.')

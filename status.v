@@ -70,3 +70,7 @@ pub fn (s &Status) payload(key string, value string) {
 		C.TF_SetPayload(s, &char(key.str), &char(value.str))
 	}
 }
+
+pub fn (s &Status)okay() bool {
+	return (s.code() == .ok)
+}

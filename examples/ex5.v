@@ -24,14 +24,14 @@ fn main() {
 		dump(f2)
 	}
 	op_desc.set_attr_tensor('value', tensor, status)
-	if status.code() != .ok {
+	if !status.okay() {
 		println(status.message())
 	} else {
 		print('Tensor set successfully.\n')
 	}
 
 	op_desc.finish_operation(status)
-	if status.code() != .ok {
+	if !status.okay() {
 		println(status.message())
 	} else {
 		print('Constant operation created successfully.\n')
